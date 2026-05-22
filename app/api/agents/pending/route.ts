@@ -10,7 +10,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("registered_agents")
     .select("*")
-    .eq("status", "pending")
+    .in("status", ["pending", "live", "suspended"]) // all manageable statuses
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ success: false }, { status: 500 });

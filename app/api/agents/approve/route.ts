@@ -7,9 +7,20 @@ export async function POST(req: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
-  const { agentId, action } = await req.json(); // action: 'approve' | 'reject'
+  const { agentId, action } = await req.json();
+  // action: 'approve' | 'reject' | 'deactivate' | 'reactivate'
 
-  const status = action === "approve" ? "live" : "rejected";
+  const statusMap: Record<string, string> = {
+    approve: "live",
+    reject: "rejected",
+    deactivate: "suspended",
+    reactivate: "live",
+  };
+
+  const status = statusMap[action];
+  if (!status) {
+    return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
+  }
 
   const { error } = await supabase
     .from("registered_agents")

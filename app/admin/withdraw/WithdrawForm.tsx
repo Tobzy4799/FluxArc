@@ -39,26 +39,35 @@ export default function WithdrawForm({ wallets }: { wallets: any[] }) {
     fetchPendingAgents()
   }, [])
 
-  const handleApprove = async (agentId: string, action: 'approve' | 'reject') => {
-    setApprovingId(agentId)
-    try {
-      const res = await fetch('/api/agents/approve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, action })
-      })
-      const data = await res.json()
-      if (data.success) {
-        // Remove from list optimistically
+const handleApprove = async (agentId: string, action: 'approve' | 'reject' | 'deactivate' | 'reactivate') => {
+  setApprovingId(agentId)
+  try {
+    const res = await fetch('/api/agents/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agentId, action })
+    })
+    const data = await res.json()
+    if (data.success) {
+      if (action === 'reject') {
+        // Rejected agents disappear from admin view
         setPendingAgents(prev => prev.filter(a => a.id !== agentId))
+      } else {
+        // For approve, deactivate, reactivate — update status in place
+        const newStatus = action === 'approve' ? 'live' 
+          : action === 'deactivate' ? 'suspended' 
+          : 'live'
+        setPendingAgents(prev => prev.map(a => 
+          a.id === agentId ? { ...a, status: newStatus } : a
+        ))
       }
-    } catch (err) {
-      console.error('Approval failed:', err)
-    } finally {
-      setApprovingId(null)
     }
+  } catch (err) {
+    console.error('Approval failed:', err)
+  } finally {
+    setApprovingId(null)
   }
-
+}
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -128,74 +137,106 @@ export default function WithdrawForm({ wallets }: { wallets: any[] }) {
         </div>
 
         {/* Pending Agent Approvals */}
-        <div className="bg-[#0e0b2e]/30 border border-fuchsia-900/30 rounded-2xl p-8 shadow-xl">
-          <div className="flex items-center gap-2 mb-6">
-            <Clock className="w-5 h-5 text-yellow-400" />
-            <h2 className="text-lg font-bold text-white">Pending Agent Approvals</h2>
-            {pendingAgents.length > 0 && (
-              <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-bold px-2 py-0.5 rounded font-mono">
-                {pendingAgents.length}
+
+
+{/* Agent Management */}
+<div className="bg-[#0e0b2e]/30 border border-fuchsia-900/30 rounded-2xl p-8 shadow-xl">
+  <div className="flex items-center gap-2 mb-6">
+    <Clock className="w-5 h-5 text-yellow-400" />
+    <h2 className="text-lg font-bold text-white">Agent Management</h2>
+    {pendingAgents.filter(a => a.status === 'pending').length > 0 && (
+      <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-bold px-2 py-0.5 rounded font-mono">
+        {pendingAgents.filter(a => a.status === 'pending').length} pending
+      </span>
+    )}
+  </div>
+
+  {pendingAgents.length === 0 ? (
+    <div className="text-center py-8 border border-dashed border-fuchsia-950/40 rounded-xl">
+      <p className="text-slate-500 text-sm font-mono">No agents submitted yet</p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {pendingAgents.map((agent) => (
+        <div key={agent.id} className="bg-[#070514] border border-fuchsia-950/50 rounded-xl p-5 space-y-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold">{agent.name}</span>
+              <span className="text-[10px] text-slate-500 font-mono">/{agent.id}</span>
+              {/* Status badge */}
+              <span className={`text-[9px] font-bold px-2 py-0.5 rounded font-mono uppercase ${
+                agent.status === 'live' ? 'bg-lime-500/10 text-lime-400 border border-lime-500/20' :
+                agent.status === 'suspended' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+              }`}>
+                {agent.status}
               </span>
-            )}
+            </div>
+            <p className="text-slate-400 text-xs leading-relaxed">{agent.description}</p>
+            <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono text-slate-500 pt-1">
+              <span>Price: <span className="text-lime-400">{agent.price} USDC</span></span>
+              <span>Dev: <span className="text-fuchsia-400">{agent.developer_wallet.slice(0, 10)}...</span></span>
+              {agent.developer_email && (
+                <a href={`mailto:${agent.developer_email}`} className="text-fuchsia-300 hover:underline">
+                  {agent.developer_email}
+                </a>
+              )}
+              <span>{new Date(agent.created_at).toLocaleDateString()}</span>
+            </div>
           </div>
 
-          {pendingAgents.length === 0 ? (
-            <div className="text-center py-8 border border-dashed border-fuchsia-950/40 rounded-xl">
-              <p className="text-slate-500 text-sm font-mono">No pending submissions</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {pendingAgents.map((agent) => (
-                <div key={agent.id} className="bg-[#070514] border border-fuchsia-950/50 rounded-xl p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-bold">{agent.name}</span>
-                        <span className="text-[10px] text-slate-500 font-mono">/{agent.id}</span>
-                      </div>
-                      <p className="text-slate-400 text-xs leading-relaxed">{agent.description}</p>
-                      <div className="flex items-center gap-4 text-[11px] font-mono text-slate-500 pt-1">
-                        <span>Price: <span className="text-lime-400">{agent.price} USDC</span></span>
-                        <span>Dev wallet: <span className="text-fuchsia-400">{agent.developer_wallet.slice(0, 10)}...</span></span>
-                        {agent.developer_email && (
-                          <span>
-                            Email:{" "}
-                            <a
-                              href={`mailto:${agent.developer_email}?subject=Regarding your agent: ${agent.name}`}
-                              className="text-fuchsia-300 hover:underline"
-                            >
-                              {agent.developer_email}
-                            </a>
-                          </span>
-                        )}
-                        <span>Submitted: {new Date(agent.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {/* Pending agents get approve/reject */}
+            {agent.status === 'pending' && (
+              <>
+                <button
+                  onClick={() => handleApprove(agent.id, 'approve')}
+                  disabled={approvingId === agent.id}
+                  className="flex items-center gap-1.5 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 text-lime-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {approvingId === agent.id ? 'Processing...' : 'Approve & Go Live'}
+                </button>
+                <button
+                  onClick={() => handleApprove(agent.id, 'reject')}
+                  disabled={approvingId === agent.id}
+                  className="flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                  Reject
+                </button>
+              </>
+            )}
 
-                  <div className="flex gap-2 pt-1">
-                    <button
-                      onClick={() => handleApprove(agent.id, 'approve')}
-                      disabled={approvingId === agent.id}
-                      className="flex items-center gap-1.5 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 text-lime-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {approvingId === agent.id ? 'Processing...' : 'Approve & Go Live'}
-                    </button>
-                    <button
-                      onClick={() => handleApprove(agent.id, 'reject')}
-                      disabled={approvingId === agent.id}
-                      className="flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      Reject
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            {/* Live agents get deactivate */}
+            {agent.status === 'live' && (
+              <button
+                onClick={() => handleApprove(agent.id, 'deactivate')}
+                disabled={approvingId === agent.id}
+                className="flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                {approvingId === agent.id ? 'Processing...' : 'Deactivate'}
+              </button>
+            )}
+
+            {/* Suspended agents get reactivate */}
+            {agent.status === 'suspended' && (
+              <button
+                onClick={() => handleApprove(agent.id, 'reactivate')}
+                disabled={approvingId === agent.id}
+                className="flex items-center gap-1.5 bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/30 text-lime-400 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {approvingId === agent.id ? 'Processing...' : 'Reactivate'}
+              </button>
+            )}
+          </div>
         </div>
+      ))}
+    </div>
+  )}
+</div>
 
       </div>
     </div>
