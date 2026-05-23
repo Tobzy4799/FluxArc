@@ -20,8 +20,7 @@ const AGENT_PROMPTS: Record<string, string> = {
     "You are ScrapeMaster Pro. Take the target website request and logically map out exactly how a structural web scraper should extract its pricing and data cleanly.",
 };
 
-// Platform fee: 5% goes to your Circle wallet, 95% to the third-party developer
-const PLATFORM_FEE_BPS = 500; // 5% in basis points (500/10000)
+
 
 export async function POST(request: Request) {
   const supabase = createClient(
@@ -86,13 +85,13 @@ export async function POST(request: Request) {
       },
     ]);
 
-    // ─── STEP 1: Determine if this is your agent or a third-party agent ───
+ 
     let system = AGENT_PROMPTS[agentId];
     let isThirdPartyAgent = false;
     let thirdPartyDeveloperWallet: string | null = null;
 
     if (!system) {
-      // Not one of your built-in agents — check the registered_agents table
+    
       const { data: thirdPartyAgent } = await supabase
         .from("registered_agents")
         .select("prompt, developer_wallet")
@@ -112,7 +111,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // ─── STEP 2: Resolve the agent wallet ───
+
     const walletSetId = process.env.CIRCLE_WALLET_SET_ID;
     if (!walletSetId)
       throw new Error("Missing CIRCLE_WALLET_SET_ID configuration.");
@@ -120,14 +119,13 @@ export async function POST(request: Request) {
     let agentWalletAddress: string | undefined;
 
     if (isThirdPartyAgent && thirdPartyDeveloperWallet) {
-      // Third-party agents: escrow releases to their wallet directly
-      // No Circle wallet needed — they receive on their own Arc wallet
+
       agentWalletAddress = thirdPartyDeveloperWallet;
       console.log(
         `[API] Using third-party developer wallet: ${agentWalletAddress}`,
       );
     } else {
-      // Your own agents: check DB for existing Circle wallet, create if missing
+  
       const { data: dbRecord } = await supabase
         .from("agent_wallets")
         .select("wallet_address, wallet_id")
@@ -166,16 +164,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // ─── STEP 3: Run the AI ───
+
     const { text: agentOutput } = await generateText({
       model: groq("llama-3.1-8b-instant"),
       system,
       prompt: userInput,
     });
 
-    // ─── STEP 4: Settle escrow on-chain ───
-    // The escrow contract releases 100% to whichever wallet was registered
-    // as workerAgentWallet in createJob (set from /api/prepare-job)
     const txHash = await relayerClient.writeContract({
       address: contractAddress,
       abi: AGENTIX_ESCROW_ABI,
@@ -194,7 +189,6 @@ export async function POST(request: Request) {
         .update({ status: "success", ai_output: agentOutput, tx_hash: txHash })
         .eq("job_id", jobId);
 
-      // Award points to user
       const POINTS_PER_JOB = 10;
       const { data: existingProfile } = await supabase
         .from("user_profiles")
@@ -215,10 +209,7 @@ export async function POST(request: Request) {
         `[Points] Awarded ${POINTS_PER_JOB} pts to ${cleanWalletAddress}. New total: ${currentPoints + POINTS_PER_JOB}`,
       );
 
-      // ─── STEP 5: For third-party agents, log the platform fee split ───
-      // Note: The actual on-chain split (95/5) requires a Solidity contract change.
-      // For now the full amount goes to the developer wallet via escrow.
-      // Log it for your records — you can implement contract-level splitting later.
+   
       if (isThirdPartyAgent && thirdPartyDeveloperWallet) {
         const priceNum = parseFloat(price || "0");
         const platformCut = (priceNum * PLATFORM_FEE_BPS) / 10000;
@@ -226,8 +217,7 @@ export async function POST(request: Request) {
         console.log(
           `[Revenue Split] Agent: ${agentId} | Developer gets: ${developerCut.toFixed(4)} USDC | Platform fee: ${platformCut.toFixed(4)} USDC`,
         );
-        // TODO: When you update your Solidity contract to support split payments,
-        // the releaseJob function will handle this automatically on-chain.
+      
       }
     } else {
       throw new Error("Transaction reverted on-chain.");

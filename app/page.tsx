@@ -94,14 +94,14 @@ const MOCK_ACTIVITIES = [
 export default function Home() {
   const router = useRouter()
   const { address, truncatedAddress, isConnected, isConnecting, connectWallet, disconnectWallet } = useArcWallet()
-const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-   useEffect(() => {
-        const timer = setTimeout(() => {
-            setMounted(true)
-        }, 0)
-        return () => clearTimeout(timer)
-    }, [])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true)
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [])
   const [currentTickerIndex, setCurrentTickerIndex] = useState(0)
   const [liveActivities, setLiveActivities] = useState<string[]>([])
   const [stats, setStats] = useState({ tasksExecuted: 0, activeWallets: 0, totalVolume: 0 })
@@ -180,20 +180,24 @@ const [mounted, setMounted] = useState(false)
       <header className="sticky top-0 z-50 border-b border-fuchsia-950/30 bg-[#0c0926]/60 backdrop-blur-xl px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
-            <Image
-              src="/fluxarc.jpg"
-              alt="FluxArc Logo"
-              width={60}
-              height={60}
-              style={{ width: 'auto', height: 'auto' }}
-              className="rounded-lg"
-            />
-            <div>
-              <span className="font-black text-2xl tracking-tight text-white">FluxArc</span>
-              <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
-                Arc L1 Native
+            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <Image
+                src="/fluxarc.jpg"
+                alt="FluxArc Logo"
+                width={60}
+                height={60}
+                style={{ width: 'auto', height: 'auto' }}
+                className="rounded-lg"
+              />
+              <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
+                FluxArc
               </span>
-            </div>
+            </Link>
+
+            {/* This badge is outside the Link, so it remains non-clickable */}
+            <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
+              Arc L1 Native
+            </span>
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-400">
@@ -375,17 +379,27 @@ const [mounted, setMounted] = useState(false)
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 pt-4">
-          <div className="bg-[#0e0b2e]/10 border border-fuchsia-950/40 rounded-2xl p-6 relative overflow-hidden">
+          <a
+            href="https://docs.arc.io/app-kit/bridge"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#0e0b2e]/10 border border-fuchsia-950/40 rounded-2xl p-6 relative overflow-hidden hover:border-lime-500/50 transition-colors"
+          >
             <div className="bg-lime-500/10 text-lime-400 p-2.5 rounded-xl w-fit mb-4 border border-lime-500/20">
               <Coins className="w-5 h-5" />
             </div>
             <h3 className="text-lg font-bold mb-2">Arc App Kit Integration</h3>
             <p className="text-slate-400 text-xs leading-relaxed">
-              Bring USDC from any blockchain seamlessly. Arc App Kit handles cross-chain unified balance routing and bridging instantly in the background.
+              Bridge USDC from any blockchain seamlessly. Arc App Kit handles cross-chain unified balance routing and bridging instantly in the background.
             </p>
-          </div>
+          </a>
 
-          <div className="bg-[#0e0b2e]/10 border border-fuchsia-950/40 rounded-2xl p-6 relative overflow-hidden">
+          <a
+            href="https://developers.circle.com/wallets/account-types"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#0e0b2e]/10 border border-fuchsia-950/40 rounded-2xl p-6 relative overflow-hidden hover:border-fuchsia-500/50 transition-colors"
+          >
             <div className="bg-fuchsia-500/10 text-fuchsia-400 p-2.5 rounded-xl w-fit mb-4 border border-fuchsia-500/20">
               <Layers className="w-5 h-5" />
             </div>
@@ -393,19 +407,18 @@ const [mounted, setMounted] = useState(false)
             <p className="text-slate-400 text-xs leading-relaxed">
               Every single AI worker operates with an isolated, secure Developer-Controlled Wallet on Arc L1 to receive earnings and pay for downstream micro-services.
             </p>
+          </a>
+</div>
+          <div className="border-t border-fuchsia-950/40 pt-8 flex flex-wrap justify-center items-center gap-8 text-xs text-slate-500 font-mono">
+            <div className="flex items-center gap-1.5">
+              <Terminal className="w-4 h-4 text-fuchsia-500/70" />
+              <span>x402 Protocol Compliant</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-lime-500/70" />
+              <span>Secure Dev-Controlled Escrow</span>
+            </div>
           </div>
-        </div>
-
-        <div className="border-t border-fuchsia-950/40 pt-8 flex flex-wrap justify-center items-center gap-8 text-xs text-slate-500 font-mono">
-          <div className="flex items-center gap-1.5">
-            <Terminal className="w-4 h-4 text-fuchsia-500/70" />
-            <span>x402 Protocol Compliant</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-lime-500/70" />
-            <span>Secure Dev-Controlled Escrow</span>
-          </div>
-        </div>
       </main>
 
       {/* Activity Ticker */}

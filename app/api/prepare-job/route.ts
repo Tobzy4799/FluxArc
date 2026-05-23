@@ -22,7 +22,6 @@ export async function POST(request: Request) {
 
   const { agentId } = await request.json();
 
-  // ── 1. Handle Third-party Agents ──
   if (!YOUR_OWN_AGENT_IDS.includes(agentId)) {
     const { data: thirdParty, error } = await supabase
       .from("registered_agents")
@@ -41,14 +40,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ walletAddress: thirdParty.developer_wallet });
   }
 
-  // ── 2. Handle Your Own Agents (Circle-powered) ──
   const { data: record } = await supabase
     .from("agent_wallets")
     .select("wallet_address")
     .eq("agent_id", agentId)
     .maybeSingle();
 
-  // If missing, provision from Circle
   if (!record) {
     const walletResponse = await circleClient.createWallets({
       walletSetId: process.env.CIRCLE_WALLET_SET_ID!,

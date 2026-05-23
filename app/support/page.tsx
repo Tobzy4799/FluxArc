@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useArcWallet } from '@/hooks/useArcWallet'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import {
     Bot, ArrowLeft, LogOut, History, Terminal, Mail,
     MessageCircle, ChevronDown, HelpCircle, Rocket
@@ -30,7 +31,7 @@ export default function SupportPage() {
     const router = useRouter()
     const { truncatedAddress, isConnected, isConnecting, connectWallet, disconnectWallet } = useArcWallet()
 
-     const [mounted, setMounted] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -51,15 +52,24 @@ export default function SupportPage() {
             <header className="sticky top-0 z-50 border-b border-fuchsia-950/30 bg-[#0c0926]/60 backdrop-blur-xl px-6 py-4 flex justify-between items-center relative">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-3">
-                        <Image
-                            src="/fluxarc.jpg"
-                            alt="FluxArc Logo"
-                            width={60}
-                            height={60}
-                            style={{ width: 'auto', height: 'auto' }}
-                            className="rounded-lg"
-                        />
-                        <span className="font-black text-2xl tracking-tight text-white">FluxArc</span>
+                        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+                            <Image
+                                src="/fluxarc.jpg"
+                                alt="FluxArc Logo"
+                                width={60}
+                                height={60}
+                                style={{ width: 'auto', height: 'auto' }}
+                                className="rounded-lg"
+                            />
+                            <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
+                                FluxArc
+                            </span>
+                        </Link>
+
+                        {/* This badge is outside the Link, so it remains non-clickable */}
+                        <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
+                            Arc L1 Native
+                        </span>
                     </div>
                     <nav className="flex items-center gap-6 text-sm font-bold text-slate-400">
 

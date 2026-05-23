@@ -154,43 +154,43 @@ export function AgentExecutionWorkspace({
   }
 
   const handleEscrowAndExecute = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!prompt.trim()) return;
+    e.preventDefault();
+    if (!prompt.trim()) return;
 
-  if (!isCurrentlyOnArc) {
-    setStatusMessage('Please switch your wallet to Arc Testnet first.');
-    return;
-  }
+    if (!isCurrentlyOnArc) {
+      setStatusMessage('Please switch your wallet to Arc Testnet first.');
+      return;
+    }
 
-  const amountBI = parseUnits(price, 18)    
-  const generatedJobId = `job-${agentId}-${Math.floor(1000 + Math.random() * 9000)}-${Date.now()}`;
-  
-  try {
-    setStatusMessage('Initializing Agent Workspace...');
-    const res = await fetch('/api/prepare-job', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agentId }) 
-    });
-    
-    const data = await res.json();
-    if (!data.walletAddress) throw new Error("Could not retrieve agent wallet.");
+    const amountBI = parseUnits(price, 18)
+    const generatedJobId = `job-${agentId}-${Math.floor(1000 + Math.random() * 9000)}-${Date.now()}`;
 
-    setStatusMessage('Depositing USDC into escrow...');
-    currentJobIdRef.current = generatedJobId;
-    setCurrentJobId(generatedJobId);
+    try {
+      setStatusMessage('Initializing Agent Workspace...');
+      const res = await fetch('/api/prepare-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId })
+      });
 
-    writeContract({
-      address: process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS as `0x${string}`,
-      abi: AGENTIX_ESCROW_ABI,
-      functionName: 'createJob',
-      args: [generatedJobId, data.walletAddress as `0x${string}`],
-      value: amountBI,
-    });
-  } catch (err: any) {
-    setStatusMessage(`Error: ${err.message}`);
-  }
-};
+      const data = await res.json();
+      if (!data.walletAddress) throw new Error("Could not retrieve agent wallet.");
+
+      setStatusMessage('Depositing USDC into escrow...');
+      currentJobIdRef.current = generatedJobId;
+      setCurrentJobId(generatedJobId);
+
+      writeContract({
+        address: process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS as `0x${string}`,
+        abi: AGENTIX_ESCROW_ABI,
+        functionName: 'createJob',
+        args: [generatedJobId, data.walletAddress as `0x${string}`],
+        value: amountBI,
+      });
+    } catch (err: any) {
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -262,9 +262,9 @@ export function AgentExecutionWorkspace({
   const renderActionButton = () => {
     if (!isConnected) {
       return (
-        <div className="text-sm font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-4 py-2.5 rounded-xl font-mono">
+        <button className="text-sm font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-4 py-2.5 rounded-xl font-mono">
           Connect Wallet First
-        </div>
+        </button>
       )
     }
 
@@ -352,6 +352,9 @@ export function AgentExecutionWorkspace({
         </div>
 
         {/* Step indicator */}
+        <div className="text-[9px] text-emerald-300 mb-2 font-mono italic">
+          Bridging to arc will incur a forwarding fee of 0.35 USDC
+        </div>
         <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
           <span className={bridgeStep === 'approving' ? 'text-blue-400 font-bold' : bridgeStep !== 'idle' ? 'text-slate-400' : ''}>
             1. Approve USDC
@@ -413,12 +416,12 @@ export function AgentExecutionWorkspace({
           <div className="text-slate-300 max-h-[400px] overflow-y-auto whitespace-pre-wrap font-sans text-sm bg-[#080617]/50 border border-slate-900 p-4 rounded-xl">
             {agentOutput}
           </div>
-          
+
           {/* Artifact Actions Integrated Here */}
           <div className="border-t border-slate-900 pt-4">
-            <ArtifactActions 
-              agentId={agentId} 
-              output={agentOutput} 
+            <ArtifactActions
+              agentId={agentId}
+              output={agentOutput}
             />
           </div>
         </div>

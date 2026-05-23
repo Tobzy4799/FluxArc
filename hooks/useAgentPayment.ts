@@ -64,7 +64,7 @@ export function useAgentPayment() {
         provider: window.ethereum,
       })
 
-      const totalToBridge = (parseFloat(priceUSDC) + 0.50).toFixed(2)
+      const totalToBridge = (parseFloat(priceUSDC) + 0.35).toFixed(2)
       const kit = new AppKit()
 
       setPaymentStatus('approving')

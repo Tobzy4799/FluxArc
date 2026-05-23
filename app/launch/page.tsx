@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useSendTransaction} from 'wagmi'
+import { useAccount, useSendTransaction } from 'wagmi'
 import { parseUnits } from 'viem'
-
+import Link from 'next/link'
 
 import { useArcWallet } from '@/hooks/useArcWallet'
 import { useRouter } from 'next/navigation'
@@ -40,31 +40,31 @@ export default function LaunchPage() {
         price: '', prompt: '', developer_email: ''
     })
 
-   const { sendTransaction, isPending } = useSendTransaction({
-  mutation: {
-    onSuccess: (hash) => {
-      setStep('submitting')
-      submitToDatabase(hash)
-    },
-    onError: (err: any) => {
-      setError(err.message)
-      setStep('form')
-    }
-  }
-})
+    const { sendTransaction, isPending } = useSendTransaction({
+        mutation: {
+            onSuccess: (hash) => {
+                setStep('submitting')
+                submitToDatabase(hash)
+            },
+            onError: (err: any) => {
+                setError(err.message)
+                setStep('form')
+            }
+        }
+    })
 
     const handlePayAndSubmit = () => {
-  if (!isConnected || !address) return
-  if (!form.name || !form.description || !form.placeholder || !form.price || !form.prompt) {
-    setError('Please fill in all required fields before paying.')
-    return
-  }
-  setStep('paying')
-  sendTransaction({
-    to: process.env.NEXT_PUBLIC_PLATFORM_WALLET as `0x${string}`,
-    value: parseUnits('5', 18), // 5 USDC as native token on Arc (18 decimals)
-  })
-}
+        if (!isConnected || !address) return
+        if (!form.name || !form.description || !form.placeholder || !form.price || !form.prompt) {
+            setError('Please fill in all required fields before paying.')
+            return
+        }
+        setStep('paying')
+        sendTransaction({
+            to: process.env.NEXT_PUBLIC_PLATFORM_WALLET as `0x${string}`,
+            value: parseUnits('5', 18), // 5 USDC as native token on Arc (18 decimals)
+        })
+    }
 
     const submitToDatabase = async (hash: string) => {
         const res = await fetch('/api/agents/register', {
@@ -90,15 +90,24 @@ export default function LaunchPage() {
             <header className="sticky top-0 z-50 border-b border-fuchsia-950/30 bg-[#0c0926]/60 backdrop-blur-xl px-6 py-4 flex justify-between items-center relative">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-3">
-                        <Image
-                            src="/fluxarc.jpg"
-                            alt="FluxArc Logo"
-                            width={60}
-                            height={60}
-                            style={{ width: 'auto', height: 'auto' }}
-                            className="rounded-lg"
-                        />
-                        <span className="font-black text-2xl tracking-tight text-white">FluxArc</span>
+                        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+                            <Image
+                                src="/fluxarc.jpg"
+                                alt="FluxArc Logo"
+                                width={60}
+                                height={60}
+                                style={{ width: 'auto', height: 'auto' }}
+                                className="rounded-lg"
+                            />
+                            <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
+                                FluxArc
+                            </span>
+                        </Link>
+
+                        {/* This badge is outside the Link, so it remains non-clickable */}
+                        <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
+                            Arc L1 Native
+                        </span>
                     </div>
                     <nav className="flex items-center gap-6 text-sm font-bold text-slate-400">
 

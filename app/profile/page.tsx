@@ -1,5 +1,5 @@
 'use client'
-
+import Link from 'next/link'
 import { useEffect, useState, useLayoutEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -48,7 +48,7 @@ export default function ProfilePage() {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false)
-useEffect(() => {
+  useEffect(() => {
     setIsMounted(true)  // this is the only mounted effect you need
   }, [])
 
@@ -136,22 +136,24 @@ useEffect(() => {
         <div className="flex items-center gap-8">
           {/* Logo Section */}
           <div className="flex items-center gap-3">
-            <Image
-              src="/fluxarc.jpg"
-              alt="FluxArc Logo"
-              width={60}
-              height={60}
-              style={{ width: 'auto', height: 'auto' }}
-              className="rounded-lg"
-            />
-            <div>
+            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <Image
+                src="/fluxarc.jpg"
+                alt="FluxArc Logo"
+                width={60}
+                height={60}
+                style={{ width: 'auto', height: 'auto' }}
+                className="rounded-lg"
+              />
               <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
                 FluxArc
               </span>
-              <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
-                Arc L1 Native
-              </span>
-            </div>
+            </Link>
+
+            {/* This badge is outside the Link, so it remains non-clickable */}
+            <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
+              Arc L1 Native
+            </span>
           </div>
 
           {/* Navigation Links */}
