@@ -210,15 +210,6 @@ export async function POST(request: Request) {
       );
 
    
-      if (isThirdPartyAgent && thirdPartyDeveloperWallet) {
-        const priceNum = parseFloat(price || "0");
-        const platformCut = (priceNum * PLATFORM_FEE_BPS) / 10000;
-        const developerCut = priceNum - platformCut;
-        console.log(
-          `[Revenue Split] Agent: ${agentId} | Developer gets: ${developerCut.toFixed(4)} USDC | Platform fee: ${platformCut.toFixed(4)} USDC`,
-        );
-      
-      }
     } else {
       throw new Error("Transaction reverted on-chain.");
     }
