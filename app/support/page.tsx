@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useArcWallet } from '@/hooks/useArcWallet'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import Link from 'next/link'
+import NavBar from '@/components/NavBar'
+
 import {
-    Bot, ArrowLeft, LogOut, History, Terminal, Mail,
-    MessageCircle, ChevronDown, HelpCircle, Rocket
+     ArrowLeft, Terminal, Mail, ShieldCheck,
+    MessageCircle, ChevronDown, HelpCircle, 
 } from 'lucide-react'
+
 
 // Simple Accordion Component
 const AccordionItem = ({ question, answer }: { question: string, answer: string }) => {
@@ -47,54 +48,9 @@ export default function SupportPage() {
     ]
 
     return (
-        <div className="min-h-screen bg-[#070514] text-slate-100 font-sans">
+        <div className="min-h-screen bg-[#070514] text-slate-100 font-sans overflow-hidden">
             {/* Header (Kept identical) */}
-            <header className="sticky top-0 z-50 border-b border-fuchsia-950/30 bg-[#0c0926]/60 backdrop-blur-xl px-6 py-4 flex justify-between items-center relative">
-                <div className="flex items-center gap-8">
-                    <div className="flex items-center gap-3">
-                        <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-                            <Image
-                                src="/fluxarc.jpg"
-                                alt="FluxArc Logo"
-                                width={60}
-                                height={60}
-                                style={{ width: 'auto', height: 'auto' }}
-                                className="rounded-lg"
-                            />
-                            <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
-                                FluxArc
-                            </span>
-                        </Link>
-
-                        {/* This badge is outside the Link, so it remains non-clickable */}
-                        <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
-                            Arc L1 Native
-                        </span>
-                    </div>
-                    <nav className="flex items-center gap-6 text-sm font-bold text-slate-400">
-
-                        <a href="/support" className="text-fuchsia-400">Help & Guides</a>
-                    </nav>
-                    <a href="/launch" className="text-fuchsia-400 hover:text-fuchsia-300 transition-colors flex items-center gap-1.5">
-                        <Rocket className="w-3.5 h-3.5" /> Launch Agent
-                    </a>
-                </div>
-                <div className="flex items-center gap-4">
-                    {isConnected && (
-                        <button onClick={() => router.push('/profile')} className="flex items-center gap-2 text-xs font-semibold bg-[#120d3d]/40 border border-fuchsia-500/20 text-fuchsia-200 px-4 py-2 rounded-xl">
-                            <History className="w-3.5 h-3.5" /> Profile
-                        </button>
-                    )}
-                    {isConnected ? (
-                        <div className="flex items-center gap-2 bg-[#120d3d] border border-fuchsia-500/30 rounded-xl px-4 py-2 text-sm font-mono text-fuchsia-300">
-                            <span>{truncatedAddress}</span>
-                            <button onClick={() => disconnectWallet()}><LogOut className="w-4 h-4" /></button>
-                        </div>
-                    ) : (
-                        <button onClick={connectWallet} className="bg-gradient-to-r from-fuchsia-600 to-violet-600 px-5 py-2.5 rounded-xl font-bold text-sm">Connect Wallet</button>
-                    )}
-                </div>
-            </header>
+           <NavBar/>
 
             <main className="max-w-4xl mx-auto p-8 space-y-12">
                 <button
@@ -173,6 +129,16 @@ export default function SupportPage() {
                         </a>
                     </div>
                 </section>
+                <div className="border-t border-fuchsia-950/40 pt-8 flex flex-wrap justify-center items-center gap-8 text-xs text-slate-500 font-mono">
+                            <div className="flex items-center gap-1.5">
+                              <Terminal className="w-4 h-4 text-fuchsia-500/70" />
+                              <span>x402 Protocol Compliant</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <ShieldCheck className="w-4 h-4 text-lime-500/70" />
+                              <span>Secure Dev-Controlled Escrow</span>
+                            </div>
+                          </div>
             </main>
         </div>
     )

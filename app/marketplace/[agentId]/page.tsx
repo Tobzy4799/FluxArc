@@ -2,20 +2,18 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
+import NavBar from '@/components/NavBar'
 import Link from 'next/link'
 import {
   ArrowLeft,
-  Wallet,
-  LogOut,
   Loader2,
   Coins,
-  History,
   CheckCircle2,
   Sparkles,
   XCircle,
-  Rocket,
-  Globe
+  Globe,
+  Terminal,
+  ShieldCheck
 } from 'lucide-react'
 import { useArcWallet } from '@/hooks/useArcWallet'
 import { useAgentPayment } from '@/hooks/useAgentPayment'
@@ -110,75 +108,10 @@ export default function AgentProfilePage() {
   const IconComponent = agent.icon
 
   return (
-    <div className="min-h-screen bg-[#070514] text-slate-100 flex flex-col font-sans relative">
+    <div className="min-h-screen bg-[#070514] text-slate-100 flex flex-col font-sans relative overflow-hidden">
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <header className="sticky top-0 z-50 border-b border-fuchsia-950/30 bg-[#0c0926]/60 backdrop-blur-xl px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-              <Image
-                src="/fluxarc.jpg"
-                alt="FluxArc Logo"
-                width={60}
-                height={60}
-                style={{ width: 'auto', height: 'auto' }}
-                className="rounded-lg"
-              />
-              <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-fuchsia-200 to-fuchsia-400 bg-clip-text text-transparent">
-                FluxArc
-              </span>
-            </Link>
-
-            {/* This badge is outside the Link, so it remains non-clickable */}
-            <span className="ml-2 text-[10px] uppercase tracking-widest bg-lime-500/10 text-lime-400 border border-lime-500/20 px-2 py-0.5 rounded-md font-mono font-bold">
-              Arc L1 Native
-            </span>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-400">
-            <a href="/support" className="hover:text-fuchsia-400 transition-colors">Help & Guides</a>
-            <a href="/launch" className="text-fuchsia-400 hover:text-fuchsia-300 transition-colors flex items-center gap-1.5">
-              <Rocket className="w-3.5 h-3.5" /> Launch Agent
-            </a>
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {isConnected && (
-            <button
-              onClick={() => router.push('/profile')}
-              className="flex items-center gap-2 text-xs font-semibold bg-[#120d3d]/40 hover:bg-[#120d3d]/80 border border-fuchsia-500/20 text-fuchsia-200 px-4 py-2 rounded-xl transition shadow-md cursor-pointer"
-            >
-              <History className="w-3.5 h-3.5 text-fuchsia-400" />
-              Profile
-            </button>
-          )}
-
-          {isConnected ? (
-            <div className="flex items-center gap-2 bg-[#120d3d] border border-fuchsia-500/30 rounded-xl px-4 py-2 text-sm font-mono text-fuchsia-300 shadow-lg">
-              <span className="w-2 h-2 bg-lime-400 rounded-full animate-ping" />
-              <span>{truncatedAddress}</span>
-              <button
-                onClick={() => disconnectWallet()}
-                className="ml-2 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
-                title="Disconnect Wallet"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={connectWallet}
-              disabled={isConnecting}
-              className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-sm shadow-xl shadow-fuchsia-600/20 hover:shadow-fuchsia-600/30 disabled:opacity-50 cursor-pointer"
-            >
-              <Wallet className="w-4 h-4" />
-              {isConnecting ? "Connecting..." : "Connect Wallet"}
-            </button>
-          )}
-        </div>
-      </header>
+     <NavBar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto p-6 my-12 space-y-8 relative z-10">
         <Link
@@ -216,6 +149,17 @@ export default function AgentProfilePage() {
           agentWalletAddress={agent.walletAddress}
           onExecutePayment={handleAgentExecutionPayment}
         />
+
+         <div className="border-t border-fuchsia-950/40 pt-8 flex flex-wrap justify-center items-center gap-8 text-xs text-slate-500 font-mono">
+                                    <div className="flex items-center gap-1.5">
+                                      <Terminal className="w-4 h-4 text-fuchsia-500/70" />
+                                      <span>x402 Protocol Compliant</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <ShieldCheck className="w-4 h-4 text-lime-500/70" />
+                                      <span>Secure Dev-Controlled Escrow</span>
+                                    </div>
+                                  </div>
       </main>
 
       {/* Cross-chain Bridging Modal */}
