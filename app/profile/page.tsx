@@ -3,7 +3,7 @@
 import { useEffect, useState, useLayoutEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useArcWallet } from '@/hooks/useArcWallet'
-import NavBar from '@/components/NavBar'
+import NavBar from '@/components/Navbar'
 import {
   Award,
   Terminal,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useArcWallet } from '@/hooks/useArcWallet'
 import { useRouter } from 'next/navigation'
-import NavBar from '@/components/NavBar'
+import NavBar from '@/components/Navbar'
 
 import {
      ArrowLeft, Terminal, Mail, ShieldCheck,

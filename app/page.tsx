@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import NavBar from '@/components/NavBar'
+import NavBar from '@/components/Navbar'
 import {
  
   Coins,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAccount, useSendTransaction } from 'wagmi'
 import { parseUnits } from 'viem'
-import NavBar from '@/components/NavBar'
+import NavBar from '@/components/Navbar'
 
 
 import { useArcWallet } from '@/hooks/useArcWallet'
